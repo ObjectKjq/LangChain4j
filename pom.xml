@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.1.8.RELEASE</version>
+        <version>3.4.3</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.kjq</groupId>
@@ -20,6 +20,10 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
         <dependency>
@@ -44,8 +48,8 @@
         </dependency>
         <dependency>
             <groupId>com.github.xiaoymin</groupId>
-            <artifactId>knife4j-spring-boot-starter</artifactId>
-            <version>3.0.3</version>
+            <artifactId>knife4j-openapi3-jakarta-spring-boot-starter</artifactId>
+            <version>4.5.0</version> <!-- 添加这行 -->
         </dependency>
         <dependency>
             <groupId>dev.langchain4j</groupId>
@@ -57,6 +61,34 @@
             <artifactId>langchain4j</artifactId>
             <version>1.0.0-beta3</version>
         </dependency>
+
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId> <!-- 注意 artifactId 变化 -->
+            <version>8.0.33</version> <!-- 推荐使用 8.0.x 最新版 -->
+            <scope>runtime</scope>
+        </dependency>
+        <!-- <dependency> -->
+        <!--     <groupId>org.mybatis.spring.boot</groupId> -->
+        <!--     <artifactId>mybatis-spring-boot-starter</artifactId> -->
+        <!--     <version>2.2.2</version> -->
+        <!-- </dependency> -->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+            <version>3.5.7</version>
+        </dependency>
+        <!-- 代码生成器相关 -->
+        <!-- <dependency> -->
+        <!--    <groupId>com.baomidou</groupId> -->
+        <!--    <artifactId>mybatis-plus-generator</artifactId> -->
+        <!--    <version>3.0.5</version> -->
+        <!-- </dependency> -->
+        <!-- <dependency> -->
+        <!--    <groupId>org.apache.velocity</groupId> -->
+        <!--    <artifactId>velocity-engine-core</artifactId> -->
+        <!--    <version>2.2</version> -->
+        <!-- </dependency> -->
     </dependencies>
 
     <build>
