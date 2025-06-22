@@ -2,14 +2,19 @@ package com.kjq.langchain4j.memory;
 
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.kjq.langchain4j.model.entity.ChatMemory;
 import com.kjq.langchain4j.service.ChatMemoryService;
 import dev.langchain4j.data.message.ChatMessage;
+import dev.langchain4j.data.message.ChatMessageDeserializer;
+import dev.langchain4j.data.message.ChatMessageSerializer;
 import dev.langchain4j.store.memory.chat.ChatMemoryStore;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.stereotype.Component;
 
+import java.lang.reflect.Type;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
@@ -32,7 +37,7 @@ public class JdbcChatMemoryStore implements ChatMemoryStore {
             return List.of();
         }
         try {
-            return JSONUtil.toList(chatMemory.getMessages(), ChatMessage.class);
+            return ChatMessageDeserializer.messagesFromJson(chatMemory.getMessages());
         } catch (Exception e) {
             return List.of();
         }
@@ -43,13 +48,14 @@ public class JdbcChatMemoryStore implements ChatMemoryStore {
         LambdaQueryWrapper<ChatMemory> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(ChatMemory::getMemoryId, memoryId);
         ChatMemory chatMemory = chatMemoryService.getOne(wrapper);
+        String json = ChatMessageSerializer.messagesToJson(list);
         if (ObjectUtils.isNotEmpty(chatMemory)){
-            chatMemory.setMessages(JSONUtil.toJsonStr(list));
+            chatMemory.setMessages(json);
             chatMemoryService.updateById(chatMemory);
         } else {
             ChatMemory chatMemoryDo = new ChatMemory();
             chatMemoryDo.setMemoryId(memoryId.toString());
-            chatMemoryDo.setMessages(JSONUtil.toJsonStr(list));
+            chatMemoryDo.setMessages(json);
             chatMemoryDo.setCreator("1");
             chatMemoryDo.setCreateTime(new Date());
             chatMemoryDo.setUpdater("1");
