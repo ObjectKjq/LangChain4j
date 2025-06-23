@@ -34,3 +34,4 @@ build/
 
 ApiKeyConfig.java
 application-dev.yml
+./chroma

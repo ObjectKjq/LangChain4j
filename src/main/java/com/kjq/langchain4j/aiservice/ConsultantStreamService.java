@@ -10,9 +10,10 @@ import reactor.core.publisher.Flux;
 @AiService(
         wiringMode = AiServiceWiringMode.EXPLICIT,
         chatModel = "openAiChatModel",
-        streamingChatModel = "openAiStreamingChatModel",
+        streamingChatModel = "openAiStreamingChatModel", // 使用自定义的流式聊天模型
         // chatMemory = "chatMemory",
-        chatMemoryProvider = "chatMemoryProvider"
+        chatMemoryProvider = "chatMemoryProvider", // 使用自定义的内存提供者
+        contentRetriever = "contentRetriever" // 使用自定义的内容检索器
 )
 public interface ConsultantStreamService {
     //用于聊天方法
