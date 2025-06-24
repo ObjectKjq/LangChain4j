@@ -34,4 +34,4 @@ build/
 
 ApiKeyConfig.java
 application-dev.yml
-./chroma
+chroma_data

@@ -17,6 +17,7 @@ import dev.langchain4j.rag.content.retriever.EmbeddingStoreContentRetriever;
 import dev.langchain4j.service.AiServices;
 import dev.langchain4j.store.embedding.EmbeddingStore;
 import dev.langchain4j.store.embedding.EmbeddingStoreIngestor;
+import dev.langchain4j.store.embedding.chroma.ChromaEmbeddingStore;
 import dev.langchain4j.store.embedding.inmemory.InMemoryEmbeddingStore;
 import dev.langchain4j.store.memory.chat.ChatMemoryStore;
 import jakarta.annotation.Resource;
@@ -85,11 +86,16 @@ public class CommonConfig {
         // List<Document> documents = ClassPathDocumentLoader.loadDocuments("docs");
         List<Document> documents = ClassPathDocumentLoader.loadDocuments("pdfs", new ApachePdfBoxDocumentParser());  // pdf文档解析器
         // 构建向量数据库
-        InMemoryEmbeddingStore store = new InMemoryEmbeddingStore();
+        // InMemoryEmbeddingStore store = new InMemoryEmbeddingStore(); // 内存版的
+        ChromaEmbeddingStore store = ChromaEmbeddingStore.builder()
+                .baseUrl("http://localhost:8000")
+                .collectionName("my_collection")
+                .build();
         // 文档分割器
         DocumentSplitter splitter = DocumentSplitters.recursive(100, 50);
         // 构建一个操作对象，完成文本分割和向量化，存储
         EmbeddingStoreIngestor ingestor = EmbeddingStoreIngestor.builder()
+                // .embeddingStore(store)
                 .embeddingStore(store)
                 .documentSplitter(splitter)
                 .embeddingModel(embeddingModel)
