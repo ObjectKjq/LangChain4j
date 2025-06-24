@@ -1,5 +1,8 @@
 package com.kjq.langchain4j.config;
 
+import cn.hutool.http.HttpRequest;
+import cn.hutool.http.HttpResponse;
+import cn.hutool.json.JSONUtil;
 import com.kjq.langchain4j.aiservice.ConsultantService;
 import com.kjq.langchain4j.memory.JdbcChatMemoryStore;
 import dev.langchain4j.data.document.Document;
@@ -21,10 +24,13 @@ import dev.langchain4j.store.embedding.chroma.ChromaEmbeddingStore;
 import dev.langchain4j.store.embedding.inmemory.InMemoryEmbeddingStore;
 import dev.langchain4j.store.memory.chat.ChatMemoryStore;
 import jakarta.annotation.Resource;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.time.Duration;
 import java.util.List;
+import java.util.Map;
 
 @Configuration
 public class CommonConfig {
@@ -34,6 +40,8 @@ public class CommonConfig {
     private ChatMemoryStore jdbcChatMemoryStore;
     @Resource
     private EmbeddingModel embeddingModel;
+
+    private final static String COLLECTION_NAME = "test_collection1";
 
     @Bean
     public ConsultantService consultantService() {
@@ -45,6 +53,7 @@ public class CommonConfig {
 
     /**
      * 创建基于内存的公共会话记忆
+     *
      * @return
      */
     @Bean
@@ -56,6 +65,7 @@ public class CommonConfig {
 
     /**
      * 会话记忆对象提供者
+     *
      * @return
      */
     @Bean
@@ -82,25 +92,45 @@ public class CommonConfig {
      */
     @Bean
     public EmbeddingStore store() {
-        // 加载文档到内存
-        // List<Document> documents = ClassPathDocumentLoader.loadDocuments("docs");
-        List<Document> documents = ClassPathDocumentLoader.loadDocuments("pdfs", new ApachePdfBoxDocumentParser());  // pdf文档解析器
         // 构建向量数据库
         // InMemoryEmbeddingStore store = new InMemoryEmbeddingStore(); // 内存版的
-        ChromaEmbeddingStore store = ChromaEmbeddingStore.builder()
-                .baseUrl("http://localhost:8000")
-                .collectionName("my_collection")
-                .build();
-        // 文档分割器
-        DocumentSplitter splitter = DocumentSplitters.recursive(100, 50);
-        // 构建一个操作对象，完成文本分割和向量化，存储
-        EmbeddingStoreIngestor ingestor = EmbeddingStoreIngestor.builder()
-                // .embeddingStore(store)
-                .embeddingStore(store)
-                .documentSplitter(splitter)
-                .embeddingModel(embeddingModel)
-                .build();
-        ingestor.ingest(documents);
+        ChromaEmbeddingStore store = new ChromaEmbeddingStore("http://localhost:8000",
+                COLLECTION_NAME,
+                Duration.ofSeconds(10),
+                true,
+                true);
+        // .builder()
+        // .baseUrl("http://localhost:8000")
+        // .collectionName("my_collection")
+        // .build();
+        // todo 判断test是否有数据
+        String body = HttpRequest.get("http://localhost:8000/api/v1/collections/"+COLLECTION_NAME)
+                .execute()
+                .body();
+        Map bean = JSONUtil.toBean(body, Map.class);
+        int num = 0;
+        if (ObjectUtils.isNotEmpty(bean.get("id"))) {
+            String id = (String) bean.get("id");
+            String count = HttpRequest.get("http://localhost:8000/api/v1/collections/" + id + "/count")
+                    .execute()
+                    .body();
+            num = Integer.parseInt(count);
+        }
+        if (num == 0) {
+            // 加载文档到内存
+            // List<Document> documents = ClassPathDocumentLoader.loadDocuments("docs");
+            List<Document> documents = ClassPathDocumentLoader.loadDocuments("pdfs", new ApachePdfBoxDocumentParser());  // pdf文档解析器
+            // 文档分割器
+            DocumentSplitter splitter = DocumentSplitters.recursive(100, 50);
+            // 构建一个操作对象，完成文本分割和向量化，存储
+            EmbeddingStoreIngestor ingestor = EmbeddingStoreIngestor.builder()
+                    // .embeddingStore(store)
+                    .embeddingStore(store)
+                    .documentSplitter(splitter)
+                    .embeddingModel(embeddingModel)
+                    .build();
+            ingestor.ingest(documents);
+        }
         return store;
     }
 

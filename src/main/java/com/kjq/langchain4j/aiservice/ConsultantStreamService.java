@@ -13,7 +13,8 @@ import reactor.core.publisher.Flux;
         streamingChatModel = "openAiStreamingChatModel", // 使用自定义的流式聊天模型
         // chatMemory = "chatMemory",
         chatMemoryProvider = "chatMemoryProvider", // 使用自定义的内存提供者
-        contentRetriever = "contentRetriever" // 使用自定义的内容检索器
+        contentRetriever = "contentRetriever", // 使用自定义的内容检索器
+        tools = "reservationTool" // 使用自定义的工具
 )
 public interface ConsultantStreamService {
     //用于聊天方法
